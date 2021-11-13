@@ -29,7 +29,29 @@ const addEmployee = async (req, res, next) => {
   }
 }
 
-const getEmployeeList = async(req, res, next) => {
+
+const updateEmployee = async (req, res, next) => {
+  const {
+    id,
+    employeeName,
+    age,
+    address,
+    mobile
+  } = req.body;
+
+  try {
+    const editEmployeeResponse = await editEmployee(id, employeeName, age, address, mobile);
+    res.status(200).send({
+      message: 'Employee updated successfully'
+    })
+  } catch (e) {
+    res.status(500).send({
+      message: 'Updating Employee Failed'
+    })
+  }
+}
+
+const getEmployeeList = async (req, res, next) => {
   let employeeList = await getAllEmployees();
   res.status(200).send({
     message: 'Success',
@@ -37,7 +59,7 @@ const getEmployeeList = async(req, res, next) => {
   })
 };
 
-const deleteEmployee = async(req, res, next) => {
+const deleteEmployee = async (req, res, next) => {
   let empId = req.params.id;
   await deleteEmployeeById(empId);
 
@@ -84,6 +106,20 @@ const createEmployee = async (id, name, age, address, mobile) => {
   })
 }
 
+const editEmployee = async (id, name, age, address, mobile) => {
+  return new Promise((resolve, reject) => {
+    let query = `UPDATE employees
+                 SET employee_name='${name}', age='${age}', address='${address}', mobile='${mobile}'
+                WHERE id = ${id};`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    })
+  })
+}
+
 const deleteEmployeeById = async (id) => {
   return new Promise((resolve, reject) => {
     let query = `DELETE FROM employees where employee_id='${id}'`;
@@ -98,6 +134,7 @@ const deleteEmployeeById = async (id) => {
 
 module.exports = {
   addEmployee,
+  updateEmployee,
   getEmployeeList,
   deleteEmployee
 };
